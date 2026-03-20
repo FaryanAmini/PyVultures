@@ -2,7 +2,6 @@ import math
 from typing import Tuple
 
 from pydantic import BaseModel, Field
-from pydantic.types import ImportString
 
 
 class GroundBoundingBox(BaseModel):
