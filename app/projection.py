@@ -29,3 +29,22 @@ class GroundProjection(BaseModel):
 
     # nested bounding box object
     bounding_box: GroundBoundingBox = Field(default_factory=GroundBoundingBox)
+
+    # methods
+    def calculate(self) -> None:
+        """calculate the properties of the bounding box"""
+        # convert fov to radians
+        fov_radians = math.radians(self.fov)
+        # calculate diagonal based on distance and FOV
+        self.diagonal = 2.0 * self.distance_from_ground * math.tan(fov_radians / 2.0)
+        # calc width and hiehg based on diagonal and aspect ratio
+        self.width = self.diagonal / math.sqrt(1.0 + (1.0 / self.aspect_ratio) ** 2)
+        self.height = self.diagonal / math.sqrt(1.0 + self.aspect_ratio**2)
+
+        # calculate bounding box coords relative to camera center
+        half_w = self.width / 2.0
+        half_h = self.height / 2.0
+        self.bounding_box.top_right = (half_w, half_h)
+        self.bounding_box.top_left = (-half_w, half_h)
+        self.bounding_box.bottom_right = (half_w, -half_h)
+        self.bounding_box.bottom_left = (-half_w, -half_h)
