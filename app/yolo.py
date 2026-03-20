@@ -1,5 +1,5 @@
 import numpy as np
-from ultralytics import YOLO
+from ultralytics import YOLO  # type: ignore
 
 # load model
 print("loading YOLO model...")
