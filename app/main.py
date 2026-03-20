@@ -1,10 +1,10 @@
 import json
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from pydantic import BaseModel
 
 # import the projection class projection.py
-from projection import GroundProjection
-from pydantic import BaseModel
+from .projection import GroundProjection
 
 
 # setting up struct for drone data
