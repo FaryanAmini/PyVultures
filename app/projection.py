@@ -47,3 +47,12 @@ class GroundProjection(BaseModel):
         self.bounding_box.top_left = (-half_w, half_h)
         self.bounding_box.bottom_right = (half_w, -half_h)
         self.bounding_box.bottom_left = (-half_w, -half_h)
+
+
+# Example usage:
+if __name__ == "__main__":
+    projection = GroundProjection(distance_from_ground=100.0, yaw=45.0)
+    projection.calculate()
+
+    # Automatically converts to a dictionary or JSON for your API response!
+    print(projection.model_dump_json(indent=2))
