@@ -1,3 +1,4 @@
+import cv2
 import numpy as np
 from ultralytics import YOLO  # type: ignore
 
@@ -12,7 +13,12 @@ def detect(image_bytes: bytes) -> list:
 
     # convert bytes to np array for yolo
     np_arr = np.frombuffer(image_bytes, np.uint8)
-    results = model(np_arr)
+    img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+
+    if img is None:
+        raise ValueError("Failed to decode image")
+
+    results = model(img)
 
     # parse retults into dicts
     detections = []
