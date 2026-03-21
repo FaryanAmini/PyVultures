@@ -1,9 +1,12 @@
 import json
 
+import cv2
+import numpy as np
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel
 
 from . import yolo
+from .geo import detection_to_gps
 
 # import the projection class projection.py
 from .projection import GroundProjection
@@ -53,8 +56,21 @@ async def rec_telemetry(
 
     # collect binary bytes for the image
     image_bytes = await image.read()
+
+    # get image dimensions
+    np_arr = np.frombuffer(image_bytes, np.uint8)
+    img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+    image_height, image_width, _ = img.shape
+
+    # yolo
     detections = yolo.detect(image_bytes)
-    print(f"Detections: {detections}")
+    gps_detections = [
+        detection_to_gps(
+            d, image_width, image_height, data.lat, data.lng, ground_projection
+        )
+        for d in detections
+    ]
+    print(f"Detections: {gps_detections}")
     # save image_bytes into a file or database
     # with open("saved_image.jpg", "wb") as f:
     #     f.write(image_bytes)
@@ -64,5 +80,5 @@ async def rec_telemetry(
     return {
         "telemetry": data,
         "projection": ground_projection,
-        "detections": detections,
+        "detections": gps_detections,
     }
