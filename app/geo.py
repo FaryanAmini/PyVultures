@@ -56,3 +56,27 @@ def pixels_to_gps(
     gps_lon = drone_lon + delta_lon
 
     return (gps_lat, gps_lon)
+
+
+def detection_to_gps(
+    detection: dict,
+    image_width: int,
+    image_height: int,
+    drone_lat: float,
+    drone_lng: float,
+    projection: GroundProjection,
+) -> dict:
+    """
+    Takes a YOLO detection dict and adds GPS coordinates for the center of its bounding box.
+    """
+    box = detection["box"]
+
+    # Get the center pixel of the bounding box
+    center_x = (box["x1"] + box["x2"]) / 2
+    center_y = (box["y1"] + box["y2"]) / 2
+
+    lat, lng = pixels_to_gps(
+        center_x, center_y, image_width, image_height, drone_lat, drone_lng, projection
+    )
+
+    return {**detection, "gps": {"lat": lat, "lng": lng}}
