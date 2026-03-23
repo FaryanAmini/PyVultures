@@ -108,3 +108,8 @@ async def rec_telemetry(
         "projection": ground_projection,
         "detections": gps_detections,
     }
+
+
+@app.get("/")
+async def send_telemetry():
+    return latest_telemetry
