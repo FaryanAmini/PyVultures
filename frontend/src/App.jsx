@@ -24,7 +24,7 @@ function App() {
   return (
     <div className="app-container">
       <header className="header">
-        <h1>Vulture Detection Dashboard</h1>
+        <h1>newVultures Dashboard</h1>
         <p>Total detections: {detections.length}</p>
       </header>
 
