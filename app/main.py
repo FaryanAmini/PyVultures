@@ -38,6 +38,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+LATEST_TELEMETRY = {
+    "telemetry": None,
+    "projection": None,
+    "detections": [],
+}
+
 
 @app.get("/")
 async def hello_world():
@@ -94,8 +100,8 @@ async def rec_telemetry(
     #     f.write(image_bytes)
 
     # save telemetry data
-    global latest_telemetry
-    latest_telemetry = {
+    global LATEST_TELEMETRY
+    LATEST_TELEMETRY = {
         "telemetry": data,
         "projection": ground_projection,
         "detections": gps_detections,
@@ -110,6 +116,6 @@ async def rec_telemetry(
     }
 
 
-@app.get("/")
+@app.get("/detections")
 async def send_telemetry():
-    return latest_telemetry
+    return LATEST_TELEMETRY
