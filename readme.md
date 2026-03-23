@@ -1,6 +1,10 @@
 # PyVultures
 
-A simple FastAPI server that receives drone telemetry and images, calculates the ground projection of the camera footprint, runs YOLO object detection, and maps the detected objects to real-world GPS coordinates.
+A FastAPI server that recieves drone telemetry and images, calculates the ground projection of the camera footprint, runs YOLO object detection, and maps the detected objects to real world GPS coordinates. This is then sent to a simple react frontend, displaying the map points with leaflet.
+
+Not included in this repo is the required DJI Mobile app built with the DJI Android APK. I am not very familiar with android development, and frankly I had a hard time with the DJI docs. For these reasons I modified one of the DJI SDK example applications. 
+
+To ensure that this code works with your drone telemetry and images, you must ensure that the camera on the drone is facing directly down as the ground projection is calculated assuming the camera is parallel with the ground. This might be changed in the future, but is most simple to ensure that the drone application only sends telemetry to the server when the camera is facing downwards.
 
 ## Installation
 
