@@ -77,6 +77,14 @@ async def rec_telemetry(
     # with open("saved_image.jpg", "wb") as f:
     #     f.write(image_bytes)
 
+    # save telemetry data
+    global latest_telemetry
+    latest_telemetry = {
+        "telemetry": data,
+        "projection": ground_projection,
+        "detections": gps_detections,
+    }
+
     # returning just the telemetry data like the original Rust code
     # return HttpResponse::Ok().json(data);
     return {
