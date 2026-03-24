@@ -3,6 +3,7 @@ import json
 import cv2
 import numpy as np
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from . import yolo
@@ -21,6 +22,27 @@ class AircraftTelemetry(BaseModel):
 
 
 app = FastAPI()
+
+# defining allowed origins
+origins = [
+    "http://localhost:3000",
+    "http://localhost:5173",  # vite react
+]
+
+# adding CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+LATEST_TELEMETRY = {
+    "telemetry": None,
+    "projection": None,
+    "detections": [],
+}
 
 
 @app.get("/")
@@ -61,6 +83,7 @@ async def rec_telemetry(
     np_arr = np.frombuffer(image_bytes, np.uint8)
     img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
     image_height, image_width, _ = img.shape
+    cv2.imwrite("saved_image.jpg", img)
 
     # yolo
     detections = yolo.detect(image_bytes)
@@ -70,10 +93,19 @@ async def rec_telemetry(
         )
         for d in detections
     ]
+
     print(f"Detections: {gps_detections}")
     # save image_bytes into a file or database
     # with open("saved_image.jpg", "wb") as f:
     #     f.write(image_bytes)
+
+    # save telemetry data
+    global LATEST_TELEMETRY
+    LATEST_TELEMETRY = {
+        "telemetry": data,
+        "projection": ground_projection,
+        "detections": gps_detections,
+    }
 
     # returning just the telemetry data like the original Rust code
     # return HttpResponse::Ok().json(data);
@@ -82,3 +114,8 @@ async def rec_telemetry(
         "projection": ground_projection,
         "detections": gps_detections,
     }
+
+
+@app.get("/detections")
+async def send_telemetry():
+    return LATEST_TELEMETRY
