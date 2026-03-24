@@ -6,26 +6,33 @@ function App() {
   const [detections, setDetections] = useState([]);
 
   useEffect(() => {
-    // TODO: In the future, fetch from your FastAPI backend here.
-    // fetch('http://localhost:8000/detections')
-    //   .then(res => res.json())
-    //   .then(data => setDetections(data));
+    const fetchDetections = () => {
+      fetch("http://localhost:8000/detections")
+        .then((res) => res.json())
+        .then((data) => {
+          // backend returns an object containing the detections list
+          setDetections(data.detections || []);
+        })
+        .catch((err) => {
+          console.error("Error fetching detections from backend:", err);
+        });
+    };
 
-    // For now, using mock data mimicking your YOLO gps_detections output
-    const mockDetections = [
-      { lat: 35.0123, lng: -120.0012, confidence: 0.95 },
-      { lat: 35.0145, lng: -120.0034, confidence: 0.88 },
-      { lat: 35.011, lng: -120.0089, confidence: 0.76 },
-    ];
+    // fetch on component load
+    fetchDetections();
 
-    setDetections(mockDetections);
+    // polling to fetch new points every 1 second
+    const intervalId = setInterval(fetchDetections, 1000);
+
+    // clean up the interval when the component is unmounted
+    return () => clearInterval(intervalId);
   }, []);
 
   return (
     <div className="app-container">
       <header className="header">
         <h1>newVultures Dashboard</h1>
-        <p>Total detections: {detections.length}</p>
+        <p>Current detections: {detections.length}</p>
       </header>
 
       <main className="map-container">

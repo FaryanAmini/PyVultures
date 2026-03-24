@@ -1,8 +1,8 @@
-import React from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import React, { useEffect } from "react";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
-// default marker icons not showing up correctly in React
+// Fix for default marker icons not showing up correctly in React/Vite
 import L from "leaflet";
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
@@ -16,10 +16,33 @@ let DefaultIcon = L.icon({
 });
 L.Marker.prototype.options.icon = DefaultIcon;
 
+// Helper component that listens for point updates and flies the map to the new detections
+function RecenterMap({ points }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (points && points.length > 0 && points[0].gps) {
+      // Fly to the first point of the new set using the nested 'gps' object
+      const firstPoint = [points[0].gps.lat, points[0].gps.lng];
+      map.flyTo(firstPoint, map.getZoom(), {
+        animate: true,
+        duration: 1.5,
+      });
+    }
+  }, [points, map]);
+
+  return null;
+}
+
 export default function VultureMap({ points }) {
-  // center the map on the first poin
+  // Initial center position if no points are present
+  const defaultCenter = [35.0, -120.0];
+
+  // Center on the first point's nested GPS coordinates if they exist
   const center =
-    points.length > 0 ? [points[0].lat, points[0].lng] : [35.0, -120.0]; // replace with a default coord
+    points && points.length > 0 && points[0].gps
+      ? [points[0].gps.lat, points[0].gps.lng]
+      : defaultCenter;
 
   return (
     <MapContainer
@@ -32,22 +55,31 @@ export default function VultureMap({ points }) {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
 
-      {points.map((point, index) => (
-        <Marker key={index} position={[point.lat, point.lng]}>
-          <Popup>
-            <b>Vulture Detection #{index + 1}</b>
-            <br />
-            Lat: {point.lat.toFixed(5)}
-            <br />
-            Lng: {point.lng.toFixed(5)}
-            <br />
-            Confidence:{" "}
-            {point.confidence
-              ? `${(point.confidence * 100).toFixed(1)}%`
-              : "N/A"}
-          </Popup>
-        </Marker>
-      ))}
+      {/* This component handles smooth transitions to new points as they arrive */}
+      <RecenterMap points={points} />
+
+      {points &&
+        points.map((point, index) => {
+          // Only render marker if GPS data exists to prevent crashes
+          if (!point.gps) return null;
+
+          return (
+            <Marker key={index} position={[point.gps.lat, point.gps.lng]}>
+              <Popup>
+                <b>Vulture Detection #{index + 1}</b>
+                <br />
+                Lat: {point.gps.lat.toFixed(5)}
+                <br />
+                Lng: {point.gps.lng.toFixed(5)}
+                <br />
+                Confidence:{" "}
+                {point.confidence
+                  ? `${(point.confidence * 100).toFixed(1)}%`
+                  : "N/A"}
+              </Popup>
+            </Marker>
+          );
+        })}
     </MapContainer>
   );
 }
