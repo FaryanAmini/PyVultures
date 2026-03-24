@@ -16,13 +16,13 @@ let DefaultIcon = L.icon({
 });
 L.Marker.prototype.options.icon = DefaultIcon;
 
-// Helper component that listens for point updates and flies the map to the new detections
+// component that listens for point updates and flies the map to the new detections
 function RecenterMap({ points }) {
   const map = useMap();
 
   useEffect(() => {
     if (points && points.length > 0 && points[0].gps) {
-      // Fly to the first point of the new set using the nested 'gps' object
+      // fly to the first point of the new set using the nested 'gps' object
       const firstPoint = [points[0].gps.lat, points[0].gps.lng];
       map.flyTo(firstPoint, map.getZoom(), {
         animate: true,
@@ -35,10 +35,10 @@ function RecenterMap({ points }) {
 }
 
 export default function VultureMap({ points }) {
-  // Initial center position if no points are present
+  //  center position if no points are present
   const defaultCenter = [35.0, -120.0];
 
-  // Center on the first point's nested GPS coordinates if they exist
+  //  on the first point's nested GPS coordinates if they exist
   const center =
     points && points.length > 0 && points[0].gps
       ? [points[0].gps.lat, points[0].gps.lng]
@@ -55,12 +55,12 @@ export default function VultureMap({ points }) {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
 
-      {/* This component handles smooth transitions to new points as they arrive */}
+      {/*  component handles smooth transitions to new points as they arrive */}
       <RecenterMap points={points} />
 
       {points &&
         points.map((point, index) => {
-          // Only render marker if GPS data exists to prevent crashes
+          //  render marker if GPS data exists to prevent crashes
           if (!point.gps) return null;
 
           return (
