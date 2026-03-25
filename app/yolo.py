@@ -4,7 +4,7 @@ from ultralytics import YOLO  # type: ignore
 
 # load model
 print("loading YOLO model...")
-model = YOLO("yolo11n.pt")
+model = YOLO("yolo26x.pt")
 print("model loaded")
 
 
