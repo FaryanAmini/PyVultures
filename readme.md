@@ -4,7 +4,15 @@ A FastAPI server that receives drone telemetry and images, calculates the ground
 
 Not included in this repo is the required DJI Mobile app built with the DJI Android APK. I am not very familiar with android development, and frankly I had a hard time with the DJI docs. For these reasons I modified one of the DJI SDK example applications. 
 
-To ensure that this code works with your drone telemetry and images, you must ensure that the camera on the drone is facing directly down as the ground projection is calculated assuming the camera is parallel with the ground. This might be changed in the future, but is most simple to ensure that the drone application only sends telemetry to the server when the camera is facing downwards.
+To ensure that this code works with your drone telemetry and images, you must ensure that the camera on the drone is facing directly down as the ground projection is calculated assuming the camera is parallel with the ground. This will be changed in the future, but is most simple to ensure that the drone application only sends telemetry to the server when the camera is facing downwards.
+
+## What is to Come
+
+The basics of target identification have been added. Next up is adding persistant target tracking. There will be more viewing modes, allowing for you to control how long a detection will stay on screen after it is lost, and other features to customize the dashboard. 
+
+# The next big step - 3D Recon. 
+
+To make this a more holistic strategic planning tool, newVultures will have a mode dedicated for 3D map reconstruction. This will begin as a point cloud, later a proper model, which the drone will then be able to line up with the real world coordinates. Once the model and reality are in line, the drone can begin plotting targets in 3D space. Additionally, these models can be when the drone is not in the sky, for strategic planning, operation simulation, etc. 
 
 ## Setup & Installation
 
