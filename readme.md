@@ -10,7 +10,7 @@ To ensure that this code works with your drone telemetry and images, you must en
 
 The basics of target identification have been added. Next up is adding persistant target tracking. There will be more viewing modes, allowing for you to control how long a detection will stay on screen after it is lost, and other features to customize the dashboard. 
 
-# The next big step - 3D Recon. 
+## The next big step - 3D Recon. 
 
 To make this a more holistic strategic planning tool, newVultures will have a mode dedicated for 3D map reconstruction. This will begin as a point cloud, later a proper model, which the drone will then be able to line up with the real world coordinates. Once the model and reality are in line, the drone can begin plotting targets in 3D space. Additionally, these models can be when the drone is not in the sky, for strategic planning, operation simulation, etc. 
 
