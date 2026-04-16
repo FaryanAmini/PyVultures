@@ -48,7 +48,7 @@ export default function VultureMap({ points }) {
     <MapContainer
       center={center}
       zoom={14}
-      style={{ height: "100%", width: "100%", minHeight: "500px" }}
+      style={{ height: "100vh", width: "100vw", minHeight: "500px" }}
     >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
