@@ -11,19 +11,46 @@ function ScannerView() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   //  function to simulate saving an image from the drone
-  const handleCapture = () => {
-    setCapturedImages((prev) => prev + 1);
-    // TODO: request to backend to save current frame to a session folder
+  const handleCapture = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/capture", {
+        method: "POST",
+      });
+
+      if (response.ok) {
+        setCapturedImages((prev) => prev + 1);
+        console.log("Frame captured successfully");
+      } else {
+        console.error("Failed to capture. Is the drone feed running?");
+      }
+    } catch (err) {
+      console.error("Error connecting to capture API:", err);
+    }
   };
 
   // generation process
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     setIsGenerating(true);
-    // generation time
-    setTimeout(() => {
+    try {
+      const response = await fetch("http://localhost:8000/generate", {
+        method: "POST",
+      });
+
+      if (response.ok) {
+        // backend runs this in the background. simulated wait time uh oh sorry
+        // to let the GPU do the heavy lifting before switching to the view tab
+        setTimeout(() => {
+          setIsGenerating(false);
+          setScannerMode("view");
+        }, 5000);
+      } else {
+        console.error("Failed to start 3D generation");
+        setIsGenerating(false);
+      }
+    } catch (err) {
+      console.error("Error connecting to generate API:", err);
       setIsGenerating(false);
-      setScannerMode("view");
-    }, 3000);
+    }
   };
 
   return (
