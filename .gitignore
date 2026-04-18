@@ -8,3 +8,5 @@ yolo11n.pt
 /venv/
 
 3DRecon/.venv/
+3DRecon/output
+3DRecon/Depth-Anything-3
