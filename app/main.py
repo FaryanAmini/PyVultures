@@ -1,4 +1,7 @@
 import json
+import os
+import shutil
+from datetime import datetime
 
 import cv2
 import numpy as np
@@ -119,3 +122,26 @@ async def rec_telemetry(
 @app.get("/detections")
 async def send_telemetry():
     return LATEST_TELEMETRY
+
+
+# create a capture directory if one does not exist
+
+CAPTURE_DIR = "captured_scans"
+os.makedirs(CAPTURE_DIR, exist_ok=True)
+
+
+@app.post("/capture")
+async def capture_frame():
+    """takes the most recent frame and saves it to a dataset"""
+    # check if the server has recieved an image
+    if not os.path.exists("saved_image.jpg"):
+        raise HTTPException(status_code=400, detail="no image received from drone")
+
+    # generate a unique filename for the capture based on the time
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+    new_filename = os.path.join(CAPTURE_DIR, f"frame_{timestamp}.jpg")
+
+    # copy the lateste image into the capture folder
+    shutil.copy2("saved_image.jpg", new_filename)
+
+    return {"status": "success", "filename": new_filename}
