@@ -119,6 +119,15 @@ async def rec_telemetry(
     }
 
 
+
+from fastapi.responses import FileResponse
+
+@app.get("/feed")
+async def get_live_feed():
+    if os.path.exists("saved_image.jpg"):
+        return FileResponse("saved_image.jpg", media_type="image/jpeg", headers={"Cache-Control": "no-cache"})
+    raise HTTPException(status_code=404, detail="No feed available")
+
 @app.get("/detections")
 async def send_telemetry():
     return LATEST_TELEMETRY

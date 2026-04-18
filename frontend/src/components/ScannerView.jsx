@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ModelViewer from "./ModelViewer";
 
 function ScannerView() {
@@ -9,6 +9,15 @@ function ScannerView() {
   const [activeModel, setActiveModel] = useState("/latest.glb");
   const [capturedImages, setCapturedImages] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // Force image reload every second
+  const [feedTick, setFeedTick] = useState(0);
+  useEffect(() => {
+    if (scannerMode === "capture") {
+      const interval = setInterval(() => setFeedTick((t) => t + 1), 1000);
+      return () => clearInterval(interval);
+    }
+  }, [scannerMode]);
 
   //  function to simulate saving an image from the drone
   const handleCapture = async () => {
@@ -178,8 +187,22 @@ function ScannerView() {
                 borderRadius: "8px",
               }}
             >
-              <span style={{ color: "#4b5563" }}>
-                [ Live Drone Feed Preview ]
+              <img
+                src={`http://localhost:8000/feed?t=${feedTick}`}
+                alt="Live Drone Feed"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  borderRadius: "6px",
+                }}
+                onError={(e) => {
+                  e.target.style.display = "none";
+                  e.target.nextSibling.style.display = "block";
+                }}
+              />
+              <span style={{ color: "#4b5563", display: "none" }}>
+                [ Waiting for Drone Feed... ]
               </span>
             </div>
 
