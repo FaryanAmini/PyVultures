@@ -145,3 +145,40 @@ async def capture_frame():
     shutil.copy2("saved_image.jpg", new_filename)
 
     return {"status": "success", "filename": new_filename}
+
+
+import subprocess
+
+from fastapi import BackgroundTasks
+
+
+@app.post("/generate")
+async def start_generation(background_tasks: BackgroundTasks):
+    input_folder = "captured_scans"
+    # check the output directory exists so the frontend can use it
+    output_folder = os.path.join("frontend", "public", "generated_models")
+    os.makedirs(output_folder, exist_ok=True)
+
+    # define the command
+    cmd = [
+        "3DRecon/.venv/bin/python",
+        "3DRecon/main.py",
+        "--input",
+        input_folder,
+        "--output",
+        output_folder,
+    ]
+
+    # run the subprocess
+    def run_reconstruction():
+        try:
+            print("Starting 3D reconstruction...")
+            subprocess.run(cmd, check=True)
+            print("3D reconstruction finished successfully.")
+        except subprocess.CalledProcessError as e:
+            print(f"3D reconstruction failed with error: {e}")
+
+    # add the task to run in the background
+    background_tasks.add_task(run_reconstruction)
+
+    return {"status": "started", "message": "3D Processing running in background"}
