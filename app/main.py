@@ -175,6 +175,20 @@ async def start_generation(background_tasks: BackgroundTasks):
             print("Starting 3D reconstruction...")
             subprocess.run(cmd, check=True)
             print("3D reconstruction finished successfully.")
+
+            import glob
+            import shutil
+
+            glb_files = glob.glob(
+                os.path.join(output_folder, "**/*.glb"), recursive=True
+            )
+            if glb_files:
+                latest_file = max(glb_files, key=os.path.getctime)
+                shutil.copy2(
+                    latest_file, os.path.join("frontend", "public", "latest.glb")
+                )
+                print(f"Copied {latest_file} to latest.glb")
+
         except subprocess.CalledProcessError as e:
             print(f"3D reconstruction failed with error: {e}")
 
