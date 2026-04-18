@@ -19,7 +19,7 @@ function ScannerView() {
   // generation process
   const handleGenerate = () => {
     setIsGenerating(true);
-    // generation time (e.g., waiting for Python backend to process)
+    // generation time
     setTimeout(() => {
       setIsGenerating(false);
       setScannerMode("view");
