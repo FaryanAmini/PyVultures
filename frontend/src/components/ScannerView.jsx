@@ -6,7 +6,9 @@ function ScannerView() {
   const [scannerMode, setScannerMode] = useState("capture"); // "capture", "generate", "view"
 
   // state
-  const [activeModel, setActiveModel] = useState("/latest.glb");
+  const [activeModel, setActiveModel] = useState(
+    "/public/generated_models/scene.glb",
+  );
   const [capturedImages, setCapturedImages] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
 

@@ -1,12 +1,14 @@
 import json
 import os
 import shutil
+import subprocess
 from datetime import datetime
 
 import cv2
 import numpy as np
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from . import yolo
@@ -119,14 +121,16 @@ async def rec_telemetry(
     }
 
 
-
-from fastapi.responses import FileResponse
-
 @app.get("/feed")
 async def get_live_feed():
     if os.path.exists("saved_image.jpg"):
-        return FileResponse("saved_image.jpg", media_type="image/jpeg", headers={"Cache-Control": "no-cache"})
+        return FileResponse(
+            "saved_image.jpg",
+            media_type="image/jpeg",
+            headers={"Cache-Control": "no-cache"},
+        )
     raise HTTPException(status_code=404, detail="No feed available")
+
 
 @app.get("/detections")
 async def send_telemetry():
@@ -154,11 +158,6 @@ async def capture_frame():
     shutil.copy2("saved_image.jpg", new_filename)
 
     return {"status": "success", "filename": new_filename}
-
-
-import subprocess
-
-from fastapi import BackgroundTasks
 
 
 @app.post("/generate")

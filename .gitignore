@@ -10,3 +10,6 @@ yolo11n.pt
 3DRecon/.venv/
 3DRecon/output
 3DRecon/Depth-Anything-3
+
+frontend/public/
+captured_scans/
