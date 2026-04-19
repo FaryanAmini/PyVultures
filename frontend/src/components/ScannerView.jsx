@@ -39,6 +39,20 @@ function ScannerView() {
     }
   };
 
+  const handleNewSession = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/session/new", {
+        method: "POST",
+      });
+      if (response.ok) {
+        setCapturedImages(0); //reset ui counter
+        console.log("New session started");
+      }
+    } catch (err) {
+      console.error("Error creating a new session", err);
+    }
+  };
+
   // generation process
   const handleGenerate = async () => {
     setIsGenerating(true);
@@ -224,6 +238,21 @@ function ScannerView() {
               >
                 Capture Frame
               </button>
+              <button
+                onClick={handleNewSession}
+                style={{
+                  padding: "12px 24px",
+                  fontSize: "16px",
+                  backgroundColor: "#13170f",
+                  color: "white",
+                  border: "1px solid #2a371f",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                }}
+              >
+                Start New Scan
+              </button>
+
               <span style={{ fontSize: "1.2rem" }}>
                 Images in buffer:{" "}
                 <strong style={{ color: "#6d9100" }}>{capturedImages}</strong>
