@@ -139,8 +139,28 @@ async def send_telemetry():
 
 # create a capture directory if one does not exist
 
-CAPTURE_DIR = "captured_scans"
-os.makedirs(CAPTURE_DIR, exist_ok=True)
+BASE_CAPTURE_DIR = "captured_scans"
+CURRENT_SESSION_DIR = None
+
+
+def get_current_session_dir():
+    global CURRENT_SESSION_DIR
+    if CURRENT_SESSION_DIR is None:
+        # create new sesion id when the server boots
+        session_id = f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        CURRENT_SESSION_DIR = os.path.join(BASE_CAPTURE_DIR, session_id)
+        os.makedirs(CURRENT_SESSION_DIR, exist_ok=True)
+    return CURRENT_SESSION_DIR
+
+
+@app.post("/session/new")
+async def new_session():
+    """creates a new folder for capturing scans and 3d model data base on the session"""
+    global CURRENT_SESSION_DIR
+    session_id = f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    CURRENT_SESSION_DIR = os.path.join(BASE_CAPTURE_DIR, session_id)
+    os.makedirs(CURRENT_SESSION_DIR, exist_ok=True)
+    return {"status": "success", "session": session_id}
 
 
 @app.post("/capture")
@@ -150,19 +170,21 @@ async def capture_frame():
     if not os.path.exists("saved_image.jpg"):
         raise HTTPException(status_code=400, detail="no image received from drone")
 
+    session_dir = get_current_session_dir()
+
     # generate a unique filename for the capture based on the time
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-    new_filename = os.path.join(CAPTURE_DIR, f"frame_{timestamp}.jpg")
+    new_filename = os.path.join(session_dir, f"frame_{timestamp}.jpg")
 
     # copy the lateste image into the capture folder
     shutil.copy2("saved_image.jpg", new_filename)
 
-    return {"status": "success", "filename": new_filename}
+    return {"status": "success", "filename": new_filename, "session": session_dir}
 
 
 @app.post("/generate")
 async def start_generation(background_tasks: BackgroundTasks):
-    input_folder = "captured_scans"
+    input_folder = get_current_session_dir()
     # check the output directory exists so the frontend can use it
     output_folder = os.path.join("frontend", "public", "generated_models")
     os.makedirs(output_folder, exist_ok=True)
