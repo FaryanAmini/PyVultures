@@ -16,6 +16,32 @@ let DefaultIcon = L.icon({
 });
 L.Marker.prototype.options.icon = DefaultIcon;
 
+const createTacticalMarker = (className) => {
+  let color = "#808080";
+  if (className == "person") {
+    color = "#fc6b03";
+  } else if (className == "car") {
+    color = "#0313fc";
+  } else if (className == "bicycle" || className == "motorcycle") {
+    color = "#f0fc03";
+  }
+  // create css dot
+  return L.divIcon({
+    className: "tactical-marker",
+    html: `<div style="
+      background-color: ${color};
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid white;
+      box-shadow: 0 0 8px ${color};
+    "></div>`,
+    iconSize: [14, 14],
+    iconAnchor: [7, 7], // centers the dot on the GPS coordinate
+    popupAnchor: [0, -10],
+  });
+};
+
 // component that listens for point updates and flies the map to the new detections
 function RecenterMap({ points }) {
   const map = useMap();
@@ -63,8 +89,15 @@ export default function VultureMap({ points }) {
           //  render marker if GPS data exists to prevent crashes
           if (!point.gps) return null;
 
+          // custom marker
+          const tacticalIcon = createTacticalMarker(point.className);
+
           return (
-            <Marker key={index} position={[point.gps.lat, point.gps.lng]}>
+            <Marker
+              key={index}
+              position={[point.gps.lat, point.gps.lng]}
+              icon={tacticalIcon}
+            >
               <Popup>
                 <b>Vulture Detection #{index + 1}</b>
                 <br />
