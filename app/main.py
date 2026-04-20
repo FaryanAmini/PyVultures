@@ -1,9 +1,14 @@
 import json
+import os
+import shutil
+import subprocess
+from datetime import datetime
 
 import cv2
 import numpy as np
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from . import yolo
@@ -116,6 +121,108 @@ async def rec_telemetry(
     }
 
 
+@app.get("/feed")
+async def get_live_feed():
+    if os.path.exists("saved_image.jpg"):
+        return FileResponse(
+            "saved_image.jpg",
+            media_type="image/jpeg",
+            headers={"Cache-Control": "no-cache"},
+        )
+    raise HTTPException(status_code=404, detail="No feed available")
+
+
 @app.get("/detections")
 async def send_telemetry():
     return LATEST_TELEMETRY
+
+
+# create a capture directory if one does not exist
+
+BASE_CAPTURE_DIR = "captured_scans"
+CURRENT_SESSION_DIR = None
+
+
+def get_current_session_dir():
+    global CURRENT_SESSION_DIR
+    if CURRENT_SESSION_DIR is None:
+        # create new sesion id when the server boots
+        session_id = f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        CURRENT_SESSION_DIR = os.path.join(BASE_CAPTURE_DIR, session_id)
+        os.makedirs(CURRENT_SESSION_DIR, exist_ok=True)
+    return CURRENT_SESSION_DIR
+
+
+@app.post("/session/new")
+async def new_session():
+    """creates a new folder for capturing scans and 3d model data base on the session"""
+    global CURRENT_SESSION_DIR
+    session_id = f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    CURRENT_SESSION_DIR = os.path.join(BASE_CAPTURE_DIR, session_id)
+    os.makedirs(CURRENT_SESSION_DIR, exist_ok=True)
+    return {"status": "success", "session": session_id}
+
+
+@app.post("/capture")
+async def capture_frame():
+    """takes the most recent frame and saves it to a dataset"""
+    # check if the server has recieved an image
+    if not os.path.exists("saved_image.jpg"):
+        raise HTTPException(status_code=400, detail="no image received from drone")
+
+    session_dir = get_current_session_dir()
+
+    # generate a unique filename for the capture based on the time
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+    new_filename = os.path.join(session_dir, f"frame_{timestamp}.jpg")
+
+    # copy the lateste image into the capture folder
+    shutil.copy2("saved_image.jpg", new_filename)
+
+    return {"status": "success", "filename": new_filename, "session": session_dir}
+
+
+@app.post("/generate")
+async def start_generation(background_tasks: BackgroundTasks):
+    input_folder = get_current_session_dir()
+    # check the output directory exists so the frontend can use it
+    output_folder = os.path.join("frontend", "public", "generated_models")
+    os.makedirs(output_folder, exist_ok=True)
+
+    # define the command
+    cmd = [
+        "3DRecon/.venv/bin/python",
+        "3DRecon/main.py",
+        "--input",
+        input_folder,
+        "--output",
+        output_folder,
+    ]
+
+    # run the subprocess
+    def run_reconstruction():
+        try:
+            print("Starting 3D reconstruction...")
+            subprocess.run(cmd, check=True)
+            print("3D reconstruction finished successfully.")
+
+            import glob
+            import shutil
+
+            glb_files = glob.glob(
+                os.path.join(output_folder, "**/*.glb"), recursive=True
+            )
+            if glb_files:
+                latest_file = max(glb_files, key=os.path.getctime)
+                shutil.copy2(
+                    latest_file, os.path.join("frontend", "public", "latest.glb")
+                )
+                print(f"Copied {latest_file} to latest.glb")
+
+        except subprocess.CalledProcessError as e:
+            print(f"3D reconstruction failed with error: {e}")
+
+    # add the task to run in the background
+    background_tasks.add_task(run_reconstruction)
+
+    return {"status": "started", "message": "3D Processing running in background"}
