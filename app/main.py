@@ -182,9 +182,30 @@ async def capture_frame():
     return {"status": "success", "filename": new_filename, "session": session_dir}
 
 
+
+@app.get("/sessions")
+async def list_sessions():
+    if not os.path.exists(BASE_CAPTURE_DIR):
+        return {"sessions": []}
+    sessions = []
+    for d in os.listdir(BASE_CAPTURE_DIR):
+        full_path = os.path.join(BASE_CAPTURE_DIR, d)
+        if os.path.isdir(full_path) and d.startswith("session_"):
+            images = [f for f in os.listdir(full_path) if f.endswith(('.jpg', '.png', '.JPG'))]
+            sessions.append({"id": d, "image_count": len(images)})
+    sessions.sort(key=lambda x: x["id"], reverse=True)
+    return {"sessions": sessions}
+
 @app.post("/generate")
-async def start_generation(background_tasks: BackgroundTasks):
-    input_folder = get_current_session_dir()
+async def start_generation(background_tasks: BackgroundTasks, session_id: str = None):
+    if session_id:
+        input_folder = os.path.join(BASE_CAPTURE_DIR, session_id)
+    else:
+        input_folder = get_current_session_dir()
+        session_id = os.path.basename(input_folder)
+        
+    if not os.path.exists(input_folder):
+        raise HTTPException(status_code=404, detail="Session folder not found")
     # check the output directory exists so the frontend can use it
     output_folder = os.path.join("frontend", "public", "generated_models")
     os.makedirs(output_folder, exist_ok=True)

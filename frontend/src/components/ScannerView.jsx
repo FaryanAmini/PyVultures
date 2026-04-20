@@ -11,6 +11,20 @@ function ScannerView() {
   );
   const [capturedImages, setCapturedImages] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [availableSessions, setAvailableSessions] = useState([]);
+  const [selectedSessionId, setSelectedSessionId] = useState(null);
+
+  // Fetch available sessions when in 'generate' mode
+  useEffect(() => {
+    if (scannerMode === "generate") {
+      fetch("http://localhost:8000/sessions")
+        .then((res) => res.json())
+        .then((data) => {
+          setAvailableSessions(data.sessions || []);
+        })
+        .catch((err) => console.error("Failed to load sessions:", err));
+    }
+  }, [scannerMode]);
 
   // Force image reload every second
   const [feedTick, setFeedTick] = useState(0);
@@ -57,7 +71,11 @@ function ScannerView() {
   const handleGenerate = async () => {
     setIsGenerating(true);
     try {
-      const response = await fetch("http://localhost:8000/generate", {
+      let url = "http://localhost:8000/generate";
+      if (selectedSessionId) {
+        url += `?session_id=${selectedSessionId}`;
+      }
+      const response = await fetch(url, {
         method: "POST",
       });
 
@@ -287,11 +305,54 @@ function ScannerView() {
                 borderRadius: "8px",
                 width: "400px",
                 border: "1px solid #2a371f",
+                maxHeight: "300px",
+                overflowY: "auto",
               }}
             >
-              <h3 style={{ margin: "0 0 10px 0" }}>
-                Dataset: {capturedImages} Frames
+              <h3 style={{ margin: "0 0 15px 0" }}>
+                Select Dataset to Process
               </h3>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "10px",
+                }}
+              >
+                <button
+                  onClick={() => setSelectedSessionId(null)}
+                  style={{
+                    padding: "10px",
+                    backgroundColor:
+                      selectedSessionId === null ? "#6d9100" : "#13170f",
+                    color: "white",
+                    border: "1px solid #2a371f",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    textAlign: "left",
+                  }}
+                >
+                  Current Active Session ({capturedImages} Frames)
+                </button>
+                {availableSessions.map((s) => (
+                  <button
+                    key={s.id}
+                    onClick={() => setSelectedSessionId(s.id)}
+                    style={{
+                      padding: "10px",
+                      backgroundColor:
+                        selectedSessionId === s.id ? "#6d9100" : "#13170f",
+                      color: "white",
+                      border: "1px solid #2a371f",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    {s.id.replace("session_", "Scan ")} ({s.image_count} Frames)
+                  </button>
+                ))}
+              </div>
             </div>
 
             {isGenerating ? (
@@ -309,20 +370,29 @@ function ScannerView() {
             ) : (
               <button
                 onClick={handleGenerate}
-                disabled={capturedImages === 0}
+                disabled={capturedImages === 0 && selectedSessionId === null}
                 style={{
                   padding: "14px 28px",
                   fontSize: "16px",
-                  backgroundColor: capturedImages === 0 ? "#13170f" : "#6d9100",
-                  color: capturedImages === 0 ? "#4a4a4a" : "white",
+                  backgroundColor:
+                    capturedImages === 0 && selectedSessionId === null
+                      ? "#13170f"
+                      : "#6d9100",
+                  color:
+                    capturedImages === 0 && selectedSessionId === null
+                      ? "#4a4a4a"
+                      : "white",
                   border: "1px solid #2a371f",
                   borderRadius: "4px",
-                  cursor: capturedImages === 0 ? "not-allowed" : "pointer",
+                  cursor:
+                    capturedImages === 0 && selectedSessionId === null
+                      ? "not-allowed"
+                      : "pointer",
                   fontWeight: "bold",
                 }}
               >
-                {capturedImages === 0
-                  ? "Insufficient Data (Capture First)"
+                {capturedImages === 0 && selectedSessionId === null
+                  ? "Insufficient Data (Select a valid session)"
                   : "Initialize 3D Generation"}
               </button>
             )}
