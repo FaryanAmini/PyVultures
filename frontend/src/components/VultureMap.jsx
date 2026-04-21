@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import "leaflet.heat";
 
 // Fix for default marker icons not showing up correctly in React/Vite
 import L from "leaflet";
@@ -59,6 +60,8 @@ function RecenterMap({ points }) {
 
   return null;
 }
+
+// add heatmap section here
 
 export default function VultureMap({ points }) {
   //  center position if no points are present
