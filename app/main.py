@@ -182,7 +182,6 @@ async def capture_frame():
     return {"status": "success", "filename": new_filename, "session": session_dir}
 
 
-
 @app.get("/sessions")
 async def list_sessions():
     if not os.path.exists(BASE_CAPTURE_DIR):
@@ -191,10 +190,24 @@ async def list_sessions():
     for d in os.listdir(BASE_CAPTURE_DIR):
         full_path = os.path.join(BASE_CAPTURE_DIR, d)
         if os.path.isdir(full_path) and d.startswith("session_"):
-            images = [f for f in os.listdir(full_path) if f.endswith(('.jpg', '.png', '.JPG'))]
+            images = [
+                f for f in os.listdir(full_path) if f.endswith((".jpg", ".png", ".JPG"))
+            ]
             sessions.append({"id": d, "image_count": len(images)})
     sessions.sort(key=lambda x: x["id"], reverse=True)
     return {"sessions": sessions}
+
+
+# create dict to store session generation status
+GENERATION_STATUS = {}
+
+
+# check generation status for the 3d reconstruction
+@app.get("generate/status/{session_id}")
+async def get_generation_status(session_id: str):
+    status = GENERATION_STATUS.get(session_id, "idle")
+    return {"session_id": session_id, "status": status}
+
 
 @app.post("/generate")
 async def start_generation(background_tasks: BackgroundTasks, session_id: str = None):
@@ -203,7 +216,7 @@ async def start_generation(background_tasks: BackgroundTasks, session_id: str = 
     else:
         input_folder = get_current_session_dir()
         session_id = os.path.basename(input_folder)
-        
+
     if not os.path.exists(input_folder):
         raise HTTPException(status_code=404, detail="Session folder not found")
     # check the output directory exists so the frontend can use it
@@ -223,6 +236,7 @@ async def start_generation(background_tasks: BackgroundTasks, session_id: str = 
     # run the subprocess
     def run_reconstruction():
         try:
+            GENERATION_STATUS[session_id] = "running"
             print("Starting 3D reconstruction...")
             subprocess.run(cmd, check=True)
             print("3D reconstruction finished successfully.")
@@ -239,9 +253,11 @@ async def start_generation(background_tasks: BackgroundTasks, session_id: str = 
                     latest_file, os.path.join("frontend", "public", "latest.glb")
                 )
                 print(f"Copied {latest_file} to latest.glb")
+                GENERATION_STATUS[session_id] = "completed"
 
         except subprocess.CalledProcessError as e:
             print(f"3D reconstruction failed with error: {e}")
+            GENERATION_STATUS[session_id] = "failed"
 
     # add the task to run in the background
     background_tasks.add_task(run_reconstruction)
