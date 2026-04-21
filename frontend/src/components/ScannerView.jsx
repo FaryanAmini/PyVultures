@@ -6,9 +6,7 @@ function ScannerView() {
   const [scannerMode, setScannerMode] = useState("capture"); // "capture", "generate", "view"
 
   // state
-  const [activeModel, setActiveModel] = useState(
-    "/public/generated_models/scene.glb",
-  );
+  const [activeModel, setActiveModel] = useState("/latest.glb");
   const [capturedImages, setCapturedImages] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
   const [availableSessions, setAvailableSessions] = useState([]);
@@ -80,11 +78,34 @@ function ScannerView() {
       });
 
       if (response.ok) {
-        // backend runs this in the background. simulated wait time uh oh sorry
         // to let the GPU do the heavy lifting before switching to the view tab
-        setTimeout(() => {
-          setIsGenerating(false);
-          setScannerMode("view");
+        const data = await response.json();
+        const targetSessionId = data.session_id;
+
+        // check generation status periodically
+        const statusInterval = setInterval(async () => {
+          try {
+            const statusResponse = await fetch(
+              `http://localhost:8000/generate/status/${targetSessionId}`,
+            );
+            if (statusResponse.ok) {
+              const statusData = await statusResponse.json();
+              if (statusData.status === "completed") {
+                clearInterval(statusInterval);
+                setIsGenerating(false);
+                setActiveModel("/latest.glb?v=" + Math.random());
+                setScannerMode("view");
+              } else if (statusData.status === "failed") {
+                clearInterval(statusInterval);
+                setIsGenerating(false);
+                console.error("Generation failed:", statusData.message);
+              }
+            }
+          } catch (err) {
+            clearInterval(statusInterval);
+            setIsGenerating(false);
+            console.error("Error checking generation status:", err);
+          }
         }, 5000);
       } else {
         console.error("Failed to start 3D generation");

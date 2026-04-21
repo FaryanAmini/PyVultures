@@ -203,7 +203,7 @@ GENERATION_STATUS = {}
 
 
 # check generation status for the 3d reconstruction
-@app.get("generate/status/{session_id}")
+@app.get("/generate/status/{session_id}")
 async def get_generation_status(session_id: str):
     status = GENERATION_STATUS.get(session_id, "idle")
     return {"session_id": session_id, "status": status}
@@ -262,4 +262,8 @@ async def start_generation(background_tasks: BackgroundTasks, session_id: str = 
     # add the task to run in the background
     background_tasks.add_task(run_reconstruction)
 
-    return {"status": "started", "message": "3D Processing running in background"}
+    return {
+        "status": "started",
+        "session_id": session_id,
+        "message": "3D Processing running in background",
+    }
