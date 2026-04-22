@@ -277,6 +277,36 @@ function ScannerView() {
               >
                 Capture Frame
               </button>
+              <label
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  cursor: "pointer",
+                }}
+              >
+                <input
+                  type="checkbox"
+                  id="autoCapture"
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      window._autoCaptureInterval = setInterval(
+                        handleCapture,
+                        1000,
+                      );
+                    } else {
+                      clearInterval(window._autoCaptureInterval);
+                    }
+                  }}
+                  style={{
+                    width: "18px",
+                    height: "18px",
+                    cursor: "pointer",
+                  }}
+                />
+                Auto Capture
+              </label>
+
               <button
                 onClick={handleNewSession}
                 style={{
