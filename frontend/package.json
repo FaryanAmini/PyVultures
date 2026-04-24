@@ -12,11 +12,13 @@
   "dependencies": {
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.0",
+    "@xyflow/react": "^12.10.2",
     "leaflet": "^1.9.4",
     "leaflet.heat": "^0.2.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-leaflet": "^5.0.0",
+    "reactflow": "^11.11.4",
     "three": "^0.184.0"
   },
   "devDependencies": {

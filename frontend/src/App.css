@@ -59,3 +59,45 @@
     background-color: #050700;
     color: white;
 }
+
+.content-area {
+    flex-grow: 1; /* This tells the main area to take up all remaining space */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* fix the control buttons visibility */
+.react-flow__controls button {
+    background-color: #13170f !important; /* Your dark olive background */
+    border-bottom: 1px solid #2a371f !important;
+    fill: #6d9100 !important; /* Your bright olive for the icons */
+}
+
+.react-flow__controls button:hover {
+    background-color: #2a371f !important;
+}
+
+/* fix the attribution text at the bottom right */
+.react-flow__attribution {
+    background: rgba(0, 0, 0, 0.5) !important;
+    color: #4b5563 !important;
+}
+
+/*  background grid is visible but subtle */
+.react-flow__background {
+    background-color: #050700 !important;
+}
+
+/* style the default nodes */
+.react-flow__node-default {
+    background: #111827 !important;
+    color: #f3f4f6 !important;
+    border: 1px solid #374151 !important;
+    border-radius: 4px !important;
+    font-family: monospace;
+}
+/* fuck the attribution text at the bottom right */
+.react-flow__attribution {
+    display: none !important;
+}

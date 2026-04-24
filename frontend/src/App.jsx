@@ -1,6 +1,8 @@
 import { useState } from "react";
 import LiveReconView from "./components/LiveReconView";
 import ScannerView from "./components/ScannerView";
+import IntelCanvas from "./components/IntelCanvas";
+
 import "./App.css";
 
 function App() {
@@ -23,11 +25,23 @@ function App() {
           >
             3D Scanner
           </button>
+          <button
+            className={activeTab === "intel" ? "active" : ""}
+            onClick={() => setActiveTab("intel")}
+          >
+            Intel Canvas
+          </button>
         </nav>
       </header>
 
       <main className="content-area">
-        {activeTab === "live" ? <LiveReconView /> : <ScannerView />}
+        {activeTab === "live" ? (
+          <LiveReconView />
+        ) : activeTab === "scanner" ? (
+          <ScannerView />
+        ) : (
+          <IntelCanvas />
+        )}
       </main>
     </div>
   );
