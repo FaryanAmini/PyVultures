@@ -11,5 +11,19 @@ yolo11n.pt
 3DRecon/output
 3DRecon/Depth-Anything-3
 
-frontend/public/
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.local
+frontend/public/generated_models/
+frontend/public/latest.glb
+
+# Data
 captured_scans/
+
+# General
+.DS_Store
+.vscode/
+.idea/
+*.log

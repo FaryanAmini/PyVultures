@@ -1,6 +1,7 @@
 import { useState } from "react";
 import LiveReconView from "./components/LiveReconView";
 import ScannerView from "./components/ScannerView";
+import IntelCanvas from "./components/IntelCanvas";
 import "./App.css";
 
 function App() {

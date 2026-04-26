@@ -17,7 +17,8 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-leaflet": "^5.0.0",
-    "three": "^0.184.0"
+    "three": "^0.184.0",
+    "tldraw": "^4.5.10"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
