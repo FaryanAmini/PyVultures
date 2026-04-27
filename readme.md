@@ -1,72 +1,57 @@
 # PyVultures
 
-A FastAPI server that receives drone telemetry and images, calculates the ground projection of the camera footprint, runs YOLO object detection, and maps the detected objects to real world GPS coordinates. This is then sent to a simple react frontend, displaying the map points with leaflet.
+A monorepo for strategic drone surveillance and reconnaissance. 
 
-Not included in this repo is the required DJI Mobile app built with the DJI Android APK. I am not very familiar with android development, and frankly I had a hard time with the DJI docs. For these reasons I modified one of the DJI SDK example applications. 
+This platform consists of a FastAPI backend that processes live drone telemetry and video, runs YOLO object detection, and maps detections to real-world GPS coordinates. This data is then visualized on a tactical React dashboard featuring both 2D mapping and 3D environment synthesis.
 
-To ensure that this code works with your drone telemetry and images, you must ensure that the camera on the drone is facing directly down as the ground projection is calculated assuming the camera is parallel with the ground. This will be changed in the future, but is most simple to ensure that the drone application only sends telemetry to the server when the camera is facing downwards.
+## Core Features
 
-## What is to Come
+- **Live Recon Mode:** Real-time target identification (People, Vehicles, etc.) with automated GPS coordinate calculation and mapping.
+- **Tactical Visualization:** A customized Leaflet dashboard with color-coded markers and a "Pattern of Life" heatmap mode to track high-activity areas.
+- **3D Scanner:** A dedicated mode to capture datasets from the drone and synthesize them into volumetric 3D models using Depth-Anything-3.
+- **Session Management:** Automatically organizes captures into unique session folders, allowing you to reprocess historical data into 3D scans.
+- **GLB Viewer:** A built-in 3D viewport using React Three Fiber to inspect recon scans without leaving the dashboard.
 
-The basics of target identification have been added. Next up is adding persistant target tracking. There will be more viewing modes, allowing for you to control how long a detection will stay on screen after it is lost, and other features to customize the dashboard. 
+## Technical Structure
 
-## The next big step - 3D Recon. 
+The project is structured as a monorepo to isolate the heavy 3D processing from the lightweight live API:
 
-To make this a more holistic strategic planning tool, newVultures will have a mode dedicated for 3D map reconstruction. This will begin as a point cloud, later a proper model, which the drone will then be able to line up with the real world coordinates. Once the model and reality are in line, the drone can begin plotting targets in 3D space. Additionally, these models can be when the drone is not in the sky, for strategic planning, operation simulation, etc. 
+- `app/`: The FastAPI backend handling live telemetry, YOLO inference, and geospatial math.
+- `frontend/`: The React/Vite tactical dashboard.
+- `3DRecon/`: A specialized engine for 3D reconstruction (Depth-Anything-3) with its own isolated environment to prevent dependency conflicts.
+- `captured_scans/`: The storage directory where drone frames are organized into missions/sessions.
 
-## Setup & Installation
+## Important Note on Drone Setup
 
-To get everything running, you need to start both the Python backend and the React frontend. It's best to run these in two separate terminal windows.
+Not included in this repo is the required DJI Mobile app built with the DJI Android SDK. I modified one of the DJI SDK sample applications to stream frames and telemetry to this server.
+
+To ensure the geospatial math is accurate, the drone camera should be looking straight down (Nadir view), as the ground projection logic currently assumes the camera plane is parallel to the earth.
+
+## Getting Started
 
 ### 1. Backend (FastAPI)
-
-Make sure you have a Python virtual environment set up, then install the required dependencies:
-
+Set up a Python virtual environment and install the required packages:
 ```bash
 pip install fastapi uvicorn python-multipart opencv-python numpy ultralytics pydantic
-```
-
-Start the development server:
-
-```bash
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
-The server will start running on `http://127.0.0.1:8000`.
+*Note: Using `--host 0.0.0.0` is required for the Android app to connect to your machine.*
 
 ### 2. Frontend (React / Vite)
-
-Make sure you have Node.js installed, then navigate to the frontend folder and install the dependencies:
-
+Navigate to the frontend folder and install dependencies:
 ```bash
 cd frontend
 npm install
-```
-
-Start the web dashboard:
-
-```bash
 npm run dev
 ```
-The map dashboard will be available at `http://localhost:5173`. It will automatically poll the backend and update the map whenever new detections come in.
 
-## Testing the API
+### 3. 3D Engine (3DRecon)
+Ensure your `3DRecon` folder has its own virtual environment with the necessary PyTorch and CUDA drivers installed to handle the Depth-Anything-3 inference.
 
-The easiest way to test the API without flying the drone is by using FastAPI's built-in interactive documentation.
+## What is to Come
 
-1. Open your browser and go to http://127.0.0.1:8000/docs
-2. Open the `POST /telemetry` route and click **"Try it out"**.
-3. In the `metadata` field, paste a sample JSON string representing the drone's telemetry. For example:
-   ```json
-   {"altitude": 120.5, "lat": 34.05, "lng": -118.24, "yaw": 45.0}
-   ```
-4. In the `image` field, choose any image (`.jpg` or `.png`) from your computer.
-5. Click **"Execute"**.
-6. Check your React dashboard—you should see the map move to the new coordinates and plot the detections!
+The next major step is the "Holy Grail" of this project: **Cross-Dimensional Synchronization.** 
 
-Alternatively, you can test it from the terminal using `curl`:
+We are working on bridging the live YOLO detections directly into the 3D scans. This will allow an operator to see a live 3D "God-View" where targets detected by the drone are plotted as glowing markers inside the 3D model in real-time. 
 
-```bash
-curl -X POST http://127.0.0.1:8000/telemetry \
-  -F 'metadata={"altitude": 120.5, "lat": 34.05, "lng": -118.24, "yaw": 45.0}' \
-  -F "image=@/path/to/your/image.jpg"
-```
+We live in an era where privacy no longer exists. Where everything is being watched. Maybe this is me reclaiming it. By building these tools ourselves, we take the "eyes in the sky" out of the hands of the few and put them into the hands of the many.

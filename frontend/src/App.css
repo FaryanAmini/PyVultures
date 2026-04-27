@@ -59,3 +59,7 @@
     background-color: #050700;
     color: white;
 }
+
+.tl-container {
+    background-color: #050700 !important;
+}
