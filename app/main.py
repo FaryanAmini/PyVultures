@@ -137,6 +137,13 @@ async def send_telemetry():
     return LATEST_TELEMETRY
 
 
+@app.post("/mock_detections")
+async def set_mock_detections(mock_data: dict):
+    global LATEST_TELEMETRY
+    LATEST_TELEMETRY = mock_data
+    return {"status": "success", "mocked": True}
+
+
 # create a capture directory if one does not exist
 
 BASE_CAPTURE_DIR = "captured_scans"

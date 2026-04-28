@@ -51,7 +51,7 @@ function RecenterMap({ points }) {
     if (points && points.length > 0 && points[0].gps) {
       // fly to the first point of the new set using the nested 'gps' object
       const firstPoint = [points[0].gps.lat, points[0].gps.lng];
-      map.flyTo(firstPoint, map.getZoom(), {
+      map.panTo(firstPoint, map.getZoom(), {
         animate: true,
         duration: 1.5,
       });
