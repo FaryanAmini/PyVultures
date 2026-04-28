@@ -3,12 +3,14 @@
     flex-direction: column;
     height: 100vh;
     width: 100vw;
+    background-color: var(--bg);
+    color: var(--textPrimary);
 }
 
 .header {
     padding: 1rem 2rem;
-    background-color: #050700;
-    color: white;
+    background-color: var(--surface);
+    color: var(--textPrimary);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -17,8 +19,9 @@
 .header h1 {
     margin: 0;
     font-size: 1.5rem;
-    color: white;
+    color: var(--textPrimary);
     letter-spacing: normal;
+    font-weight: 600;
 }
 
 .header p {
@@ -41,25 +44,29 @@
 .tab-navigation button {
     padding: 8px 16px;
     cursor: pointer;
-    background: #222;
-    color: white;
-    border: 1px solid #444;
+    background: var(--surfaceHover);
+    color: var(--textSecondary);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    font-weight: 500;
+}
+
+.tab-navigation button:hover:not(.active) {
+    border-color: var(--textMuted);
+    color: var(--textPrimary);
 }
 
 .tab-navigation button.active {
-    background: #6d9100;
-    border-color: #6d9100;
-}
-
-.app-container {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    width: 100vw;
-    background-color: #050700;
-    color: white;
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+    box-shadow:
+        0 0 15px var(--accentMuted),
+        0 0 5px var(--accent);
 }
 
 .tl-container {
-    background-color: #050700 !important;
+    background-color: var(--bg) !important;
 }

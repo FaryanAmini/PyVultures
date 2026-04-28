@@ -64,9 +64,9 @@ function LiveReconView() {
 
 // simple inline styling for the toggle buttons
 const toggleBtnStyle = (isActive) => ({
-  background: isActive ? "#6d9100" : "#13170f",
-  color: "white",
-  border: "1px solid #2a371f",
+  background: isActive ? "var(--accent)" : "var(--surface)",
+  color: "var(--textPrimary)",
+  border: "1px solid var(--border)",
   padding: "5px 15px",
   cursor: "pointer",
   borderRadius: "4px",

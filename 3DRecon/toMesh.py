@@ -1,51 +1,82 @@
-from sys import path
-
 import numpy as np
 import open3d as o3d
-
-# load in the GLB file
-target_mesh = ""
-mesh = o3d.io.read_triangle_mesh(target_mesh)
-
-# extract verticies to numpy array
-points = np.asarray(mesh.verticies)
-print(f"loaded {len(points)} points from glb")
-
-# function to create mesh
+import trimesh
+import trimesh.smoothing
+from scipy.spatial import cKDTree
 
 
-def generate_mesh(input_path, output_path):
-    pcd = o3d.io.read_point_cloud(input_path)
-    if not pcd.has_points():
-        mesh = o3d.io.read_triangle_mesh(input_path)
-        pcd.points = mesh.vertices
-        pcd.colors = mesh.vertex_colors
+def load_glb(path):
+    """extracts points and colors from a glb regardless of source"""
+    scene = trimesh.load(path)
+    geoms = scene.geometry.values() if isinstance(scene, trimesh.Scene) else [scene]
 
-    print(f"loaded {len(pcd.points)} points from {input_path}")
+    points_list = []
+    colors_list = []
 
-    # remove statistical outliers
-    print("cleaning")
-    pcd, ind = pcd.remove_statistical_outliers(nb_neighbors=20, std_ratio=2.0)
-    print(f"removed {len(pcd.points) - len(ind)} outliers")
+    for g in geoms:
+        if not hasattr(g, "vertices") or len(g.vertices) == 0:
+            continue
 
-    # estimate normals
-    print("estimating normals")
-    pcd.estimate_normals(
-        search_param=o3d.geometry.KDTreeSearchParamHybrid(radius=0.1, max_nn=30)
-    )
-    pcd.orient_normals_consistent_tangent_plane(10)
+        points_list.append(g.vertices)
 
-    # mesh reconstruction
-    print("reconstructing mesh")
-    mesh, densities = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(
-        pcd, depth=9
-    )
+        # handle color extraction safely
+        if (
+            hasattr(g, "visual")
+            and hasattr(g.visual, "vertex_colors")
+            and g.visual.vertex_colors is not None
+        ):
+            colors_list.append(g.visual.vertex_colors[:, :3])
+        elif hasattr(g, "colors") and g.colors is not None:
+            colors_list.append(g.colors[:, :3])
+        else:
+            # fallback to neutral grey
+            colors_list.append(np.ones((len(g.vertices), 3)) * 128)
 
-    # trim and cut low confidence
-    print("trimming mesh")
-    verticies_to_remove = densities < np.quantile(densities, 0.1)
-    mesh.remove_vertices_by_index(verticies_to_remove)
+    if not points_list:
+        raise ValueError(f"no valid points found in {path}")
 
-    # export to glb with color and scale
-    print(f"saving mesh to {output_path}")
-    o3d.io.write_triangle_mesh(output_path, mesh)
+    return np.concatenate(points_list), np.concatenate(colors_list)
+
+
+def generate_mesh(input_file, output_file):
+    # 1. load raw data from glb
+    print(f"loading: {input_file}")
+    pts, clrs = load_glb(input_file)
+
+    pcd = o3d.geometry.PointCloud()
+    pcd.points = o3d.utility.Vector3dVector(pts)
+    pcd.colors = o3d.utility.Vector3dVector(clrs / 255.0)
+
+    # 2. unify density and remove noise
+    # voxel downsampling makes the normal estimation math much more stable
+    print("unifying point density...")
+    pcd = pcd.voxel_down_sample(voxel_size=0.001)
+    pcd, _ = pcd.remove_statistical_outlier(nb_neighbors=20, std_ratio=2.0)
+
+    # 3. create solid mesh via marching cubes
+    # Voxel remeshing bypasses point normal estimation, ensuring correct outward-facing normals
+    print("generating solid mesh via voxel remeshing...")
+
+    points = np.asarray(pcd.points)
+    colors = np.asarray(pcd.colors)
+
+    pitch = 0.001
+    mesh_tri = trimesh.voxel.ops.points_to_marching_cubes(points, pitch=pitch)
+
+    print("smoothing mesh...")
+    trimesh.smoothing.filter_taubin(mesh_tri, iterations=20)
+
+    print("mapping colors...")
+    tree = cKDTree(points)
+    _, indices = tree.query(mesh_tri.vertices)
+    mesh_tri.visual.vertex_colors = (colors[indices] * 255).astype(np.uint8)
+
+    # 4. save the final result
+    print(f"saving solid mesh to: {output_file}")
+    mesh_tri.export(output_file)
+    print("success")
+
+
+if __name__ == "__main__":
+    # replace these paths with your test files
+    generate_mesh("../frontend/public/latest.glb", "output/mesh.glb")

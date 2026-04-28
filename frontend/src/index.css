@@ -1,10 +1,31 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap");
+
+:root {
+    --bg: #050505;
+    --surface: #09090b;
+    --surfaceHover: #111114;
+    --accent: #10b981;
+    --accentMuted: rgba(16, 185, 129, 0.2);
+    --warning: #f59e0b;
+    --error: #ef4444;
+    --success: #10b981;
+    --border: #18181b;
+    --borderBright: #27272a;
+    --textPrimary: #ffffff;
+    --textSecondary: #a1a1aa;
+    --textMuted: #52525b;
+}
+
 html,
 body {
+    background-color: var(--bg);
+    color: var(--textPrimary);
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
     font-family:
+        "Inter",
         system-ui,
         -apple-system,
         BlinkMacSystemFont,
@@ -13,9 +34,8 @@ body {
         Oxygen,
         Ubuntu,
         Cantarell,
-        "Open Sans",
-        "Helvetica Neue",
         sans-serif;
+    -webkit-font-smoothing: antialiased;
 }
 
 #root {
@@ -27,4 +47,10 @@ body {
 
 * {
     box-sizing: border-box;
+}
+
+.tactical-mono {
+    font-family: "JetBrains Mono", monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }

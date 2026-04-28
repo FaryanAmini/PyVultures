@@ -12,7 +12,9 @@ function DroneScanModel({ url }) {
 
 export default function ModelViewer({ modelUrl }) {
   return (
-    <div style={{ width: "100%", height: "800px", background: "#111" }}>
+    <div
+      style={{ width: "100%", height: "800px", background: "var(--surface)" }}
+    >
       {/* The Canvas is your 3D world */}
       <Canvas camera={{ position: [0, 5, 10], fov: 50 }}>
         {/* Controls let you drag, zoom, and rotate */}
@@ -38,7 +40,7 @@ function HtmlFallback() {
   return (
     <mesh>
       <sphereGeometry args={[0.5, 32, 32]} />
-      <meshBasicMaterial color="orange" wireframe />
+      <meshBasicMaterial color="var(--accent)" wireframe />
     </mesh>
   );
 }

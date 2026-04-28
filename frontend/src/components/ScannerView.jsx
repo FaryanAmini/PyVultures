@@ -125,7 +125,7 @@ function ScannerView() {
         gap: "20px",
         padding: "20px",
         height: "100%",
-        color: "white",
+        color: "var(--textPrimary)",
       }}
     >
       {/* Sidebar Navigation */}
@@ -137,7 +137,7 @@ function ScannerView() {
           gap: "10px",
           width: "200px",
           padding: "15px",
-          border: "1px solid #333",
+          border: "1px solid var(--border)",
           //borderRadius: "1px",
           //backgroundColor: "#111827",
         }}
@@ -145,9 +145,10 @@ function ScannerView() {
         <h3
           style={{
             marginTop: 0,
-            borderBottom: "1px solid #333",
+            borderBottom: "1px solid var(--border)",
             paddingBottom: "10px",
             fontSize: "1rem",
+            fontWeight: 600,
           }}
         >
           Scanner Controls
@@ -157,12 +158,26 @@ function ScannerView() {
           onClick={() => setScannerMode("capture")}
           style={{
             padding: "10px",
-            //borderRadius: "6px",
+            borderRadius: "4px",
             cursor: "pointer",
-            backgroundColor: scannerMode === "capture" ? "#6d9100" : "#13170f",
-            color: "white",
-            border: "1px solid #2a371f",
+            backgroundColor:
+              scannerMode === "capture"
+                ? "var(--accent)"
+                : "var(--surfaceHover)",
+            color:
+              scannerMode === "capture" ? "var(--bg)" : "var(--textPrimary)",
+            border:
+              scannerMode === "capture"
+                ? "1px solid var(--accent)"
+                : "1px solid var(--border)",
+            boxShadow:
+              scannerMode === "capture"
+                ? "0 0 15px var(--accentMuted), 0 0 5px var(--accent)"
+                : "none",
             textAlign: "left",
+            fontFamily: "inherit",
+            fontWeight: scannerMode === "capture" ? 600 : 500,
+            transition: "all 0.2s ease",
           }}
         >
           1. Capture Data
@@ -172,12 +187,26 @@ function ScannerView() {
           onClick={() => setScannerMode("generate")}
           style={{
             padding: "10px",
-            //borderRadius: "6px",
+            borderRadius: "4px",
             cursor: "pointer",
-            backgroundColor: scannerMode === "generate" ? "#6d9100" : "#13170f",
-            color: "white",
-            border: "1px solid #2a371f",
+            backgroundColor:
+              scannerMode === "generate"
+                ? "var(--accent)"
+                : "var(--surfaceHover)",
+            color:
+              scannerMode === "generate" ? "var(--bg)" : "var(--textPrimary)",
+            border:
+              scannerMode === "generate"
+                ? "1px solid var(--accent)"
+                : "1px solid var(--border)",
+            boxShadow:
+              scannerMode === "generate"
+                ? "0 0 15px var(--accentMuted), 0 0 5px var(--accent)"
+                : "none",
             textAlign: "left",
+            fontFamily: "inherit",
+            fontWeight: scannerMode === "generate" ? 600 : 500,
+            transition: "all 0.2s ease",
           }}
         >
           2. Process Model
@@ -187,12 +216,23 @@ function ScannerView() {
           onClick={() => setScannerMode("view")}
           style={{
             padding: "10px",
-            //borderRadius: "6px",
+            borderRadius: "4px",
             cursor: "pointer",
-            backgroundColor: scannerMode === "view" ? "#6d9100" : "#13170f",
-            color: "white",
-            border: "1px solid #2a371f",
+            backgroundColor:
+              scannerMode === "view" ? "var(--accent)" : "var(--surfaceHover)",
+            color: scannerMode === "view" ? "var(--bg)" : "var(--textPrimary)",
+            border:
+              scannerMode === "view"
+                ? "1px solid var(--accent)"
+                : "1px solid var(--border)",
+            boxShadow:
+              scannerMode === "view"
+                ? "0 0 15px var(--accentMuted), 0 0 5px var(--accent)"
+                : "none",
             textAlign: "left",
+            fontFamily: "inherit",
+            fontWeight: scannerMode === "view" ? 600 : 500,
+            transition: "all 0.2s ease",
           }}
         >
           3. 3D Viewer
@@ -204,7 +244,7 @@ function ScannerView() {
         className="scanner-viewport"
         style={{
           flexGrow: 1,
-          border: "1px solid #333",
+          border: "1px solid var(--border)",
           //borderRadius: "8px",
           overflow: "hidden",
           //backgroundColor:,
@@ -224,8 +264,8 @@ function ScannerView() {
               height: "100%",
             }}
           >
-            <h2>Reconnaissance Capture</h2>
-            <p style={{ color: "#a5a5a5" }}>
+            <h2 style={{ fontWeight: 600 }}>Reconnaissance Capture</h2>
+            <p style={{ color: "var(--textSecondary)" }}>
               Fly drone over target area and capture frames for photogrammetry.
             </p>
 
@@ -233,8 +273,8 @@ function ScannerView() {
               style={{
                 width: "80%",
                 height: "400px",
-                backgroundColor: "#000",
-                border: "2px dashed #2a371f",
+                backgroundColor: "var(--bg)",
+                border: "2px dashed var(--borderBright)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -256,7 +296,10 @@ function ScannerView() {
                   e.target.nextSibling.style.display = "block";
                 }}
               />
-              <span style={{ color: "#4b5563", display: "none" }}>
+              <span
+                className="tactical-mono"
+                style={{ color: "var(--textMuted)", display: "none" }}
+              >
                 [ Waiting for Drone Feed... ]
               </span>
             </div>
@@ -267,12 +310,15 @@ function ScannerView() {
                 style={{
                   padding: "12px 24px",
                   fontSize: "16px",
-                  backgroundColor: "#6d9100",
-                  color: "white",
-                  border: "none",
+                  backgroundColor: "var(--accent)",
+                  color: "var(--bg)",
+                  border: "1px solid var(--accent)",
                   borderRadius: "4px",
                   cursor: "pointer",
-                  fontWeight: "bold",
+                  fontWeight: "600",
+                  fontFamily: "inherit",
+                  boxShadow:
+                    "0 0 15px var(--accentMuted), 0 0 5px var(--accent)",
                 }}
               >
                 Capture Frame
@@ -312,19 +358,36 @@ function ScannerView() {
                 style={{
                   padding: "12px 24px",
                   fontSize: "16px",
-                  backgroundColor: "#13170f",
-                  color: "white",
-                  border: "1px solid #2a371f",
+                  backgroundColor: "var(--surface)",
+                  color: "var(--textPrimary)",
+                  border: "1px solid var(--border)",
                   borderRadius: "4px",
                   cursor: "pointer",
+                  fontFamily: "inherit",
+                  fontWeight: "500",
+                  transition: "all 0.2s ease",
                 }}
               >
                 Start New Scan
               </button>
 
-              <span style={{ fontSize: "1.2rem" }}>
-                Images in buffer:{" "}
-                <strong style={{ color: "#6d9100" }}>{capturedImages}</strong>
+              <span style={{ fontSize: "1.2rem", marginLeft: "15px" }}>
+                <span
+                  className="tactical-mono"
+                  style={{ fontSize: "0.9em", color: "var(--textSecondary)" }}
+                >
+                  BUFFER:{" "}
+                </span>
+                <strong
+                  className="tactical-mono"
+                  style={{
+                    color: "var(--accent)",
+                    textShadow: "0 0 8px var(--accentMuted)",
+                    fontSize: "1.2em",
+                  }}
+                >
+                  {capturedImages}
+                </strong>
               </span>
             </div>
           </div>
@@ -343,8 +406,8 @@ function ScannerView() {
               height: "100%",
             }}
           >
-            <h2>Synthesize Environment</h2>
-            <p style={{ color: "#a5a5a5" }}>
+            <h2 style={{ fontWeight: 600 }}>Synthesize Environment</h2>
+            <p style={{ color: "var(--textSecondary)" }}>
               Convert captured 2D intelligence into a volumetric 3D scan.
             </p>
 
@@ -352,15 +415,15 @@ function ScannerView() {
               style={{
                 margin: "30px 0",
                 padding: "30px",
-                backgroundColor: "#050700",
+                backgroundColor: "var(--surfaceHover)",
                 borderRadius: "8px",
                 width: "400px",
-                border: "1px solid #2a371f",
+                border: "1px solid var(--border)",
                 maxHeight: "300px",
                 overflowY: "auto",
               }}
             >
-              <h3 style={{ margin: "0 0 15px 0" }}>
+              <h3 style={{ margin: "0 0 15px 0", fontWeight: 600 }}>
                 Select Dataset to Process
               </h3>
               <div
@@ -375,15 +438,35 @@ function ScannerView() {
                   style={{
                     padding: "10px",
                     backgroundColor:
-                      selectedSessionId === null ? "#6d9100" : "#13170f",
-                    color: "white",
-                    border: "1px solid #2a371f",
+                      selectedSessionId === null
+                        ? "var(--accent)"
+                        : "var(--surface)",
+                    color:
+                      selectedSessionId === null
+                        ? "var(--bg)"
+                        : "var(--textPrimary)",
+                    border:
+                      selectedSessionId === null
+                        ? "1px solid var(--accent)"
+                        : "1px solid var(--border)",
+                    boxShadow:
+                      selectedSessionId === null
+                        ? "0 0 10px var(--accentMuted)"
+                        : "none",
                     borderRadius: "4px",
                     cursor: "pointer",
                     textAlign: "left",
+                    fontFamily: "inherit",
+                    fontWeight: 500,
                   }}
                 >
-                  Current Active Session ({capturedImages} Frames)
+                  Current Active Session{" "}
+                  <span
+                    className="tactical-mono"
+                    style={{ float: "right", fontSize: "0.85em", opacity: 0.8 }}
+                  >
+                    ({capturedImages})
+                  </span>
                 </button>
                 {availableSessions.map((s) => (
                   <button
@@ -392,15 +475,39 @@ function ScannerView() {
                     style={{
                       padding: "10px",
                       backgroundColor:
-                        selectedSessionId === s.id ? "#6d9100" : "#13170f",
-                      color: "white",
-                      border: "1px solid #2a371f",
+                        selectedSessionId === s.id
+                          ? "var(--accent)"
+                          : "var(--surface)",
+                      color:
+                        selectedSessionId === s.id
+                          ? "var(--bg)"
+                          : "var(--textPrimary)",
+                      border:
+                        selectedSessionId === s.id
+                          ? "1px solid var(--accent)"
+                          : "1px solid var(--border)",
+                      boxShadow:
+                        selectedSessionId === s.id
+                          ? "0 0 10px var(--accentMuted)"
+                          : "none",
                       borderRadius: "4px",
                       cursor: "pointer",
                       textAlign: "left",
+                      fontFamily: "inherit",
+                      fontWeight: 500,
                     }}
                   >
-                    {s.id.replace("session_", "Scan ")} ({s.image_count} Frames)
+                    {s.id.replace("session_", "Scan ")}{" "}
+                    <span
+                      className="tactical-mono"
+                      style={{
+                        float: "right",
+                        fontSize: "0.85em",
+                        opacity: 0.8,
+                      }}
+                    >
+                      ({s.image_count})
+                    </span>
                   </button>
                 ))}
               </div>
@@ -408,12 +515,14 @@ function ScannerView() {
 
             {isGenerating ? (
               <div
+                className="tactical-mono"
                 style={{
-                  color: "#6d9100",
-                  fontSize: "1.2rem",
+                  color: "var(--accent)",
+                  fontSize: "1rem",
                   fontWeight: "bold",
                   marginTop: "20px",
                   animation: "pulse 1.5s infinite",
+                  textShadow: "0 0 10px var(--accentMuted)",
                 }}
               >
                 Processing geometry... Please stand by.
@@ -427,19 +536,27 @@ function ScannerView() {
                   fontSize: "16px",
                   backgroundColor:
                     capturedImages === 0 && selectedSessionId === null
-                      ? "#13170f"
-                      : "#6d9100",
+                      ? "var(--surface)"
+                      : "var(--accent)",
                   color:
                     capturedImages === 0 && selectedSessionId === null
-                      ? "#4a4a4a"
-                      : "white",
-                  border: "1px solid #2a371f",
+                      ? "var(--textMuted)"
+                      : "var(--bg)",
+                  border:
+                    capturedImages === 0 && selectedSessionId === null
+                      ? "1px solid var(--border)"
+                      : "1px solid var(--accent)",
+                  boxShadow:
+                    capturedImages === 0 && selectedSessionId === null
+                      ? "none"
+                      : "0 0 15px var(--accentMuted), 0 0 5px var(--accent)",
                   borderRadius: "4px",
                   cursor:
                     capturedImages === 0 && selectedSessionId === null
                       ? "not-allowed"
                       : "pointer",
                   fontWeight: "bold",
+                  fontFamily: "inherit",
                 }}
               >
                 {capturedImages === 0 && selectedSessionId === null
